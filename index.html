@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Save Bank Card Number</title>
+</head>
+
+<body>
+
+    <div id="demo"></div>
+
+    <div class="box" id="card-number">
+        <input type="text">
+        <input type="text">
+        <input type="text">
+        <input type="text">
+    </div>
+
+    <div class="box">
+        <input type="text" name="" id="cvv2" placeholder="CVV2">
+    </div>
+
+    <button onclick="mySave()">Save</button>
+
+
+    <script>
+        let cnParts = document.querySelectorAll('#card-number>input');
+        let cvv2 = document.querySelector('#cvv2');
+
+        cnParts.forEach((cnPart, i) => {
+            cnPart.addEventListener('input', (event) => {
+                if (cnPart.value.length >= 4 && i != 3) {
+                    cnPart.nextElementSibling.focus();
+                } else if (cnPart.value.length >= 4 && i == 3) {
+                    cvv2.focus();
+                }
+                if (event.inputType === 'deleteContentBackward' && cnPart.value.length === 0) {
+                    cnPart.previousElementSibling.focus();
+                }
+
+            })
+        })
+
+        // blur event === when client click or focus anywhere else
+        cnParts.forEach((cnPart) => {
+            cnPart.addEventListener('blur', () => {
+                if (cnPart.value.length > 4) {
+                    cnPart.value = cnPart.value.slice(0, 4);
+                }
+            })
+
+        })
+
+        const demo = document.getElementById('demo');
+        let m = 9;
+        let s = 59;
+        setInterval(() => {
+            if (s != 0) {
+                s--;
+            } else {
+                if (m != 0) {
+                    m--;
+                    s = 59;
+                } else {
+                    // window.close()
+                    location.assign('https://www.google.de/')
+                }
+            }
+
+            demo.textContent = `Time Left: ${m}m ${s}s`;
+        }, 1000)
+
+
+
+
+
+
+
+
+
+        //////////////////////////////////////////////////////////////////////
+
+
+        let cardCounter = localStorage.getItem('cardCounter');
+
+        if (localStorage.getItem('cardItem1') == null) {
+            localStorage.setItem('cardCounter', 1);
+        } else {
+            saveCards()
+        }
+
+        const mySave = () => {
+            let flag = 0;
+            let cardNumber = '';
+            cardCounter = localStorage.getItem('cardCounter');
+
+            cnParts.forEach((cnPart) => {
+                cnPart.value.length != 4 && flag++;
+                cardNumber += cnPart.value;
+            })
+            if (flag == 0) {
+                localStorage.setItem(`cardItem${parseInt(cardCounter)}`, cardNumber);
+                localStorage.setItem('cardCounter', parseInt(cardCounter) + 1);
+            }
+
+        }
+
+        //////////////////////////////////////////////////////////////////////
+
+        function saveCards() {
+            for (let i = 1; i < parseInt(cardCounter); i++) {
+                let body = document.querySelector('body');
+
+                let btn = document.createElement('button');
+                btn.textContent = `${localStorage.getItem(`cardItem${i}`).slice(0, 4)}************${localStorage.getItem(`cardItem${i}`).slice(12, 16)}`;
+                body.appendChild(btn);
+
+                btn.addEventListener('click', () => {
+                    let num = 0;
+                    cnParts.forEach((cnPart) => {
+                        cnPart.value = localStorage.getItem(`cardItem${i}`).slice(num, num += 4);
+                    })
+                })
+            }
+        }
+
+    </script>
+</body>
+
+</html>
